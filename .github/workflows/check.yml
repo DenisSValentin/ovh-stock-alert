@@ -8,7 +8,7 @@
 #   minutos de retraso.
 # - ⚠️ En un repositorio PÚBLICO, GitHub desactiva los workflows programados tras 60 días
 #   sin actividad en el repo. Avisa por correo; se reactiva en la pestaña Actions.
-name: Stock de VPS en OVH
+name: Stock de VPS (OVH y Hetzner)
 
 on:
   schedule:
@@ -36,6 +36,8 @@ jobs:
       - name: Comprobar el stock
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          # Token de SÓLO LECTURA de Hetzner Cloud. Sin él, Hetzner se salta.
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
           HOME_DC: eu-west-gra
         run: ./check-ovh-stock.sh
 
