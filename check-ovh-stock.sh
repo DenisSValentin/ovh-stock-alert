@@ -108,6 +108,9 @@ if [ -n "$HCLOUD_TOKEN" ]; then
     log "error consultando Hetzner; no se cambia nada"
     exit 1
   }
+  # Cuántos tipos ha devuelto y si están los vigilados: con 0, el token o la API fallan
+  # en silencio y nunca avisaría.
+  log "Hetzner: $(printf '%s' "$json" | jq '.server_types | length') tipos; vigilados presentes: $(printf '%s' "$json" | jq -r --arg w "$HETZNER_TYPES" '[.server_types[].name | select(. as $n | ($w | split(" ")) | index($n))] | join(" ") | if . == "" then "NINGUNO" else . end')"
   for pair in $(printf '%s' "$json" | jq -r '.server_types[] | .name as $t | .locations[]? | select(.available == true) | "\($t)@\(.name)"'); do
     t="${pair%@*}"; loc="${pair#*@}"
     case " $HETZNER_TYPES " in *" $t "*) ;; *) continue ;; esac
