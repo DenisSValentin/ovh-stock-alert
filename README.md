@@ -1,0 +1,71 @@
+# Avisador de stock de VPS en OVH
+
+Avisa al móvil (con [ntfy](https://ntfy.sh)) y al Mac cuando OVH vuelve a tener **VPS-2 o
+VPS-3 con Linux** en un centro de datos europeo. Mira la API pública de OVH cada 10
+minutos y sólo avisa del cambio (agotado → disponible), no en cada pasada.
+
+- Si aparece en `HOME_DC` (tu centro), el aviso es de prioridad alta: es el único donde
+  podrías **subir tu VPS-1** sin migrar, porque la mejora sólo funciona dentro del mismo
+  centro.
+- Si aparece en otro centro, aviso normal: valdría para contratar uno nuevo allí.
+- Comprueba `linuxStatus`, no `status`: el 30-10-2026 el VPS-2 salía «available» en tres
+  centros, pero sólo con Windows.
+
+## Puesta en marcha (5 minutos)
+
+1. **App en el móvil:** instala **ntfy** (App Store o Google Play).
+2. **Inventa un tema** largo y raro (quien lo conozca puede leer los avisos):
+   ```bash
+   echo "ovh-denis-$(openssl rand -hex 6)"
+   ```
+   En la app: **+** → escribe ese tema → **Subscribe**.
+3. **Configura el avisador:**
+   ```bash
+   cd ~/Developer/personal/ovh-stock-alert
+   cp config.env.example config.env
+   open -e config.env      # pega el tema en NTFY_TOPIC= y guarda
+   ```
+4. **Prueba que llega:**
+   ```bash
+   ./check-ovh-stock.sh --test
+   ```
+5. **Que se ejecute solo cada 10 minutos** (tarea de usuario de macOS, `launchd`):
+   ```bash
+   cp com.denisvs.ovh-stock-alert.plist ~/Library/LaunchAgents/
+   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.denisvs.ovh-stock-alert.plist
+   ```
+   Lo que hace: macOS lanza el script cada 10 minutos mientras tu sesión está abierta.
+   No pide permisos de administrador ni toca nada del sistema; el registro va a
+   `check.log`.
+
+## Consultas y mantenimiento
+
+```bash
+./check-ovh-stock.sh --status    # qué hay disponible ahora mismo
+tail -f check.log                # qué ha ido comprobando
+```
+
+**Quitarlo** (cuando ya tengas tu VPS-2, o si molesta):
+```bash
+launchctl bootout gui/$(id -u)/com.denisvs.ovh-stock-alert
+rm ~/Library/LaunchAgents/com.denisvs.ovh-stock-alert.plist
+```
+
+## Limitación: sólo vigila con el Mac despierto
+
+Con la tapa cerrada o el Mac apagado no comprueba nada, y un VPS repuesto puede volver a
+agotarse en horas. Cuando tengas el VPS-1, **muévelo allí** (Ubuntu necesita `jq`):
+
+```bash
+sudo apt install -y jq
+crontab -e
+# añade esta línea (ajusta la ruta):
+*/10 * * * * /opt/ovh-stock-alert/check-ovh-stock.sh >> /opt/ovh-stock-alert/check.log 2>&1
+```
+En el servidor no hay notificación de macOS: sólo llega la de ntfy al móvil.
+
+## Cambiar qué vigila
+
+En `config.env`: `HOME_DC` (tu centro), `PLANS` (códigos del catálogo, p. ej.
+`vps-2027-model2`) y `DATACENTERS`. Los códigos se sacan de
+`https://eu.api.ovh.com/v1/order/catalog/public/vps?ovhSubsidiary=ES`.

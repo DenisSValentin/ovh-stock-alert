@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Tarea de macOS (launchd) que pasa check-ovh-stock.sh cada 10 minutos mientras el Mac
+     está encendido y con la sesión abierta. Instalar y quitar: ver README.md. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.denisvs.ovh-stock-alert</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/denisvs/Developer/personal/ovh-stock-alert/check-ovh-stock.sh</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/denisvs/Developer/personal/ovh-stock-alert/check.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/denisvs/Developer/personal/ovh-stock-alert/check.log</string>
+</dict>
+</plist>
