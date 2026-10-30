@@ -1,0 +1,47 @@
+# Pasa check-ovh-stock.sh en los servidores de GitHub, sin depender del Mac.
+#
+# - El tema de ntfy va en el secreto NTFY_TOPIC del repositorio (Settings → Secrets and
+#   variables → Actions), nunca en el código.
+# - Lo que vio la última vez (para avisar sólo de los cambios) se guarda en la caché de
+#   Actions: se restaura la más reciente y se guarda una nueva en cada pasada.
+# - GitHub no garantiza la hora exacta: un cron de 10 minutos suele ejecutarse con algunos
+#   minutos de retraso.
+# - ⚠️ En un repositorio PÚBLICO, GitHub desactiva los workflows programados tras 60 días
+#   sin actividad en el repo. Avisa por correo; se reactiva en la pestaña Actions.
+name: Stock de VPS en OVH
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ovh-stock
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recuperar el estado anterior
+        uses: actions/cache/restore@v4
+        with:
+          path: .last-available
+          key: ovh-state-${{ github.run_id }}
+          restore-keys: ovh-state-
+
+      - name: Comprobar el stock
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          HOME_DC: eu-west-gra
+        run: ./check-ovh-stock.sh
+
+      - name: Guardar el estado
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: .last-available
+          key: ovh-state-${{ github.run_id }}

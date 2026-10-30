@@ -51,7 +51,22 @@ launchctl bootout gui/$(id -u)/com.denisvs.ovh-stock-alert
 rm ~/Library/LaunchAgents/com.denisvs.ovh-stock-alert.plist
 ```
 
-## Limitación: sólo vigila con el Mac despierto
+## Sin el Mac: GitHub Actions (recomendado)
+
+`.github/workflows/check.yml` pasa el mismo script en los servidores de GitHub cada 10
+minutos (con algún minuto de retraso, GitHub no garantiza la hora exacta). Gratis:
+
+- **Repositorio público:** minutos ilimitados. El tema de ntfy no queda a la vista: va en
+  un secreto. ⚠️ GitHub desactiva los workflows programados tras **60 días sin actividad**
+  en el repo; avisa por correo y se reactiva en la pestaña Actions.
+- **Repositorio privado:** 2.000 minutos al mes, y cada pasada cuenta como un minuto
+  entero. Cada 10 minutos serían ~4.300 y no caben: cambia el cron a `*/30 * * * *`.
+
+Para activarlo: crear el repo, subirlo y añadir el secreto `NTFY_TOPIC` en Settings →
+Secrets and variables → Actions. Se puede lanzar a mano desde la pestaña Actions con
+**Run workflow**. Si usas Actions, no instales también la tarea del Mac (avisarían los dos).
+
+## Limitación de la tarea del Mac: sólo vigila con el Mac despierto
 
 Con la tapa cerrada o el Mac apagado no comprueba nada, y un VPS repuesto puede volver a
 agotarse en horas. Cuando tengas el VPS-1, **muévelo allí** (Ubuntu necesita `jq`):
