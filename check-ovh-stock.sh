@@ -33,9 +33,10 @@ NTFY_SERVER="${NTFY_SERVER:-https://ntfy.sh}"
 STATE_FILE="${STATE_FILE:-$DIR/.last-available}"
 API="${OVH_API:-https://eu.api.ovh.com/v1}"
 
-# Hetzner: los equivalentes del VPS-2 de OVH (8 GB). cax = ARM.
+# Hetzner: el equivalente del VPS-2 de OVH (4 vCPU x86, 8 GB). Sin ARM (los cax), por
+# decisión de Denis: no quiere depender de que cada imagen tenga versión ARM.
 HCLOUD_TOKEN="${HCLOUD_TOKEN:-}"
-HETZNER_TYPES="${HETZNER_TYPES:-cx33 cax21}"
+HETZNER_TYPES="${HETZNER_TYPES:-cx33}"
 HETZNER_LOCATIONS="${HETZNER_LOCATIONS:-fsn1 nbg1 hel1}"
 HCLOUD_API="${HCLOUD_API:-https://api.hetzner.cloud/v1}"
 

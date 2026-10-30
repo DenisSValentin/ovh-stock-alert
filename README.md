@@ -1,7 +1,7 @@
 # Avisador de stock de VPS (OVH y Hetzner)
 
 Avisa al móvil (con [ntfy](https://ntfy.sh)) y al Mac cuando OVH vuelve a tener **VPS-2 o
-VPS-3 con Linux** en un centro de datos europeo, o Hetzner tiene **CX33 o CAX21** en
+VPS-3 con Linux** en un centro de datos europeo, o Hetzner tiene **CX33** (x86) en
 Falkenstein, Núremberg o Helsinki. Mira las APIs cada 10 minutos y sólo avisa del cambio
 (agotado → disponible), no en cada pasada.
 
@@ -15,8 +15,8 @@ Sin token, Hetzner se salta y OVH sigue funcionando igual.
 
 - Mira `server_types[].locations[].available`. ⚠️ `/datacenters` ya no sirve: Hetzner lo
   retiró el 1-10-2026.
-- `cax21` es ARM: Coolify y las imágenes de Node funcionan, pero comprueba que todo lo que
-  despliegues tenga imagen para ARM.
+- Sólo x86: los `cax` (ARM) quedan fuera a propósito, para no depender de que cada imagen
+  tenga versión ARM.
 - El aviso de Hetzner es de prioridad alta y abre la consola: su stock barato dura horas.
 
 ## OVH
